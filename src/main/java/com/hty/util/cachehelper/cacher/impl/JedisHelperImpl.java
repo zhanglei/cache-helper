@@ -17,8 +17,8 @@ import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -58,13 +58,18 @@ import com.hty.util.cachehelper.cacher.JedisCacheHelper;
  * </pre>
  * 测试10,000条数据的写入，使用事务耗时105ms，使用管道耗时109ms，使用普通模式耗时26506<br>
  * 测试1000,000条数据的写入，使用事务耗时5322ms，使用管道耗时6235ms，本地线程耗时564592ms
- * @author Tisnyi
  *
+ * @author Hetianyi 2017/12/30
+ * @version 1.0
  */
 public class JedisHelperImpl implements JedisCacheHelper {
-	private Logger logger = Logger.getLogger(JedisHelperImpl.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(JedisHelperImpl.class);
+
 	private JedisPool pool;
+
 	private ResourceBundle bundle;
+
 	/**
 	 * 用于事务模式
 	 */
@@ -109,21 +114,16 @@ public class JedisHelperImpl implements JedisCacheHelper {
 		throw new IllegalArgumentException(
 			"[redis.properties] is not found!");
 	    }
-	    logger.debug("redis.pool.maxActive = " + Integer.valueOf(bundle
-			    .getString("redis.pool.maxActive")));
-	    logger.debug("redis.pool.maxIdle = " + Integer.valueOf(bundle
-			    .getString("redis.pool.maxIdle")));
-	    logger.debug("redis.pool.maxWait = " + Long.valueOf(bundle.getString("redis.pool.maxWait")));
-	    logger.debug("redis.pool.testOnBorrow = " + Boolean.valueOf(bundle
-			    .getString("redis.pool.testOnBorrow")));
-	    logger.debug("redis.pool.testOnReturn = " + Boolean.valueOf(bundle
-			    .getString("redis.pool.testOnReturn")));
-	    logger.debug("redis.pool.maxTotal = " + Integer.valueOf(bundle
-			    .getString("redis.pool.maxTotal")));
-	    logger.debug("redis.host = " + bundle.getString("redis.host"));
-	    logger.debug("redis.port = " + bundle.getString("redis.port"));
-	    logger.debug("redis.password = " + bundle.getString("redis.password"));
-	    logger.debug("redis.default.db = " + bundle.getString("redis.default.db"));
+	    logger.debug("redis.pool.maxActive = {}", Integer.valueOf(bundle.getString("redis.pool.maxActive")));
+	    logger.debug("redis.pool.maxIdle = {}", Integer.valueOf(bundle.getString("redis.pool.maxIdle")));
+	    logger.debug("redis.pool.maxWait = {}", Long.valueOf(bundle.getString("redis.pool.maxWait")));
+	    logger.debug("redis.pool.testOnBorrow = {}", Boolean.valueOf(bundle.getString("redis.pool.testOnBorrow")));
+	    logger.debug("redis.pool.testOnReturn = {}", Boolean.valueOf(bundle.getString("redis.pool.testOnReturn")));
+	    logger.debug("redis.pool.maxTotal = {}", Integer.valueOf(bundle.getString("redis.pool.maxTotal")));
+	    logger.debug("redis.host = {}", bundle.getString("redis.host"));
+	    logger.debug("redis.port = {}", bundle.getString("redis.port"));
+	    logger.debug("redis.password = {}", bundle.getString("redis.password"));
+	    logger.debug("redis.default.db = {}", bundle.getString("redis.default.db"));
 	    
 	    JedisPoolConfig config = new JedisPoolConfig();
 	    config.setBlockWhenExhausted(true);
@@ -178,7 +178,7 @@ public class JedisHelperImpl implements JedisCacheHelper {
 	 * @return
 	 */
 	private Jedis getJedis() {
-		logger.debug("当前Jedis资源池信息, 空闲连接数:"+pool.getNumIdle()+", 活动连接数:"+pool.getNumActive());
+		logger.debug("当前Jedis资源池信息, 空闲连接数:{}, 活动连接数:{}", pool.getNumIdle(), pool.getNumActive());
 		if(null != getCurrentThreadLocalJedis())
 			return getCurrentThreadLocalJedis();
 		else return getNewJedis();
@@ -195,7 +195,7 @@ public class JedisHelperImpl implements JedisCacheHelper {
 			return true;
 		if(getCurrentMode() != MODE_PLAIN)
 			throw new IllegalStateException("Another mode is working:Mode[" + getCurrentMode() + "]");
-		logger.debug("Bound a threadlocal Jedis instance.");
+		logger.debug("Bind a ThreadLocal Jedis instance.");
 		clear();
 		mode.set(MODE_THREAD_LOCAL);
 		Jedis jedis = getJedis();
@@ -204,7 +204,7 @@ public class JedisHelperImpl implements JedisCacheHelper {
 	}
 	@Override
 	public void unboundJedis() {
-		logger.debug("Unbound the threadlocal Jedis instance.");
+		logger.debug("Unbind the ThreadLocal Jedis instance.");
 		clear();
 	}
 	
@@ -386,12 +386,7 @@ public class JedisHelperImpl implements JedisCacheHelper {
 		byte[] bs = SerializeUtil.serialize(value);
 		this.set(key.getBytes(), bs, second);
 	}
-	/**
-	 *
-	 * @param key
-	 * @param value
-	 * @param millisecond
-	 */
+
 	private void set(byte[] key, byte[] value, int second) {
 		assertKey(key);
 		if(null == value) {
@@ -1233,7 +1228,7 @@ public class JedisHelperImpl implements JedisCacheHelper {
 
 	@Override
 	public void info() {
-		logger.info("当前Jedis资源池信息, 空闲连接数:"+pool.getNumIdle()+", 活动连接数:"+pool.getNumActive());
+		logger.info("当前Jedis资源池信息, 空闲连接数:{}, 活动连接数:{}", pool.getNumIdle(), pool.getNumActive());
 	}
 
 

@@ -10,7 +10,8 @@ import com.dyuproject.protostuff.WireFormat.FieldType;
 import com.dyuproject.protostuff.runtime.Delegate;
 
 public class TimestampDelegate implements Delegate<Timestamp> {
-	public FieldType getFieldType() {
+
+    public FieldType getFieldType() {
         return FieldType.FIXED64;
     }
 
