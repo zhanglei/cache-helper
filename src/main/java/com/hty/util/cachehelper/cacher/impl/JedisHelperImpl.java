@@ -1,32 +1,15 @@
-/**  
-* @Title: JedisHelperImpl.java
-* @Package com.hty.util.jedis.impl
-* @Description: TODO
-* @author liugang  
-* @date 2017年3月13日 下午3:28:02 
-*/
 package com.hty.util.cachehelper.cacher.impl;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ResourceBundle;
-import java.util.Set;
-
+import com.hty.util.cachehelper.SerializeUtil;
+import com.hty.util.cachehelper.bean.JedisConfigBean;
+import com.hty.util.cachehelper.cacher.JedisCacheHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.Transaction;
+import redis.clients.jedis.*;
 
-import com.hty.util.cachehelper.SerializeUtil;
-import com.hty.util.cachehelper.cacher.JedisCacheHelper;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * JedisHelperImpl使用有四种模式：<br>
@@ -68,7 +51,7 @@ public class JedisHelperImpl implements JedisCacheHelper {
 
 	private JedisPool pool;
 
-	private ResourceBundle bundle;
+	private JedisConfigBean jedisConfigBean;
 
 	/**
 	 * 用于事务模式
@@ -107,48 +90,39 @@ public class JedisHelperImpl implements JedisCacheHelper {
 	 */
 	private static final Integer MODE_PLAIN = 4;
 	//初始化JedisPool连接池
-	private void initJedisPool() {
+	private void initJedisPool(JedisConfigBean jedisConfigBean) {
+	    this.jedisConfigBean  =jedisConfigBean;
 		logger.debug("Initial JedisPool...");
-		bundle = ResourceBundle.getBundle("redis");
-	    if (bundle == null) {
-		throw new IllegalArgumentException(
-			"[redis.properties] is not found!");
-	    }
-	    logger.debug("redis.pool.maxActive = {}", Integer.valueOf(bundle.getString("redis.pool.maxActive")));
-	    logger.debug("redis.pool.maxIdle = {}", Integer.valueOf(bundle.getString("redis.pool.maxIdle")));
-	    logger.debug("redis.pool.maxWait = {}", Long.valueOf(bundle.getString("redis.pool.maxWait")));
-	    logger.debug("redis.pool.testOnBorrow = {}", Boolean.valueOf(bundle.getString("redis.pool.testOnBorrow")));
-	    logger.debug("redis.pool.testOnReturn = {}", Boolean.valueOf(bundle.getString("redis.pool.testOnReturn")));
-	    logger.debug("redis.pool.maxTotal = {}", Integer.valueOf(bundle.getString("redis.pool.maxTotal")));
-	    logger.debug("redis.host = {}", bundle.getString("redis.host"));
-	    logger.debug("redis.port = {}", bundle.getString("redis.port"));
-	    logger.debug("redis.password = {}", bundle.getString("redis.password"));
-	    logger.debug("redis.default.db = {}", bundle.getString("redis.default.db"));
+	    logger.debug("redis.pool.maxActive = {}", jedisConfigBean.getMaxActive());
+	    logger.debug("redis.pool.maxIdle = {}", jedisConfigBean.getMaxIdle());
+	    logger.debug("redis.pool.minIdle = {}", jedisConfigBean.getMinIdle());
+	    logger.debug("redis.pool.maxWait = {}", jedisConfigBean.getMaxWait());
+	    logger.debug("redis.pool.testOnBorrow = {}", jedisConfigBean.isTestOnBorrow());
+	    logger.debug("redis.pool.testOnReturn = {}", jedisConfigBean.isTestOnReturn());
+	    logger.debug("redis.pool.maxTotal = {}", jedisConfigBean.getMaxTotal());
+	    logger.debug("redis.host = {}", jedisConfigBean.getHost());
+	    logger.debug("redis.port = {}", jedisConfigBean.getPort());
+	    logger.debug("redis.password = {}", jedisConfigBean.getPassword());
+	    logger.debug("redis.default.db = {}", jedisConfigBean.getDefaultDb());
 	    
 	    JedisPoolConfig config = new JedisPoolConfig();
 	    config.setBlockWhenExhausted(true);
-	    config.setMaxIdle(Integer.valueOf(bundle
-		    .getString("redis.pool.maxActive")));
-	    config.setMaxIdle(Integer.valueOf(bundle
-		    .getString("redis.pool.maxIdle")));
-	    config.setMaxWaitMillis(Long.valueOf(bundle.getString("redis.pool.maxWait")));
-	    config.setTestOnBorrow(Boolean.valueOf(bundle
-		    .getString("redis.pool.testOnBorrow")));
-	    config.setTestOnReturn(Boolean.valueOf(bundle
-		    .getString("redis.pool.testOnReturn")));
-	    config.setMaxTotal(Integer.valueOf(bundle
-		    .getString("redis.pool.maxTotal")));
-	    config.setTestOnBorrow(false);
-	    pool = new JedisPool(config, bundle.getString("redis.host"),
-		    Integer.valueOf(bundle.getString("redis.port")));
+	    config.setMaxIdle(jedisConfigBean.getMaxActive());
+	    config.setMaxIdle(jedisConfigBean.getMaxIdle());
+	    config.setMaxWaitMillis(jedisConfigBean.getMaxWait());
+	    config.setTestOnBorrow(jedisConfigBean.isTestOnBorrow());
+	    config.setTestOnReturn(jedisConfigBean.isTestOnReturn());
+	    config.setMaxTotal(jedisConfigBean.getMaxTotal());
+        config.setMinIdle(jedisConfigBean.getMinIdle());
+	    pool = new JedisPool(config, jedisConfigBean.getHost(), jedisConfigBean.getPort());
 	}
 	
 	
 	/**
 	 * 
 	 */
-	public JedisHelperImpl() {
-		initJedisPool();
+	public JedisHelperImpl(JedisConfigBean jedisConfigBean) {
+		initJedisPool(jedisConfigBean);
 	}
 	
 	private Integer getCurrentMode() {
@@ -162,8 +136,10 @@ public class JedisHelperImpl implements JedisCacheHelper {
 	@Override
 	public Jedis getNewJedis() {
 		Jedis jedis = pool.getResource();
-		jedis.auth(bundle.getString("redis.password"));
-		jedis.select(Integer.valueOf(bundle.getString("redis.default.db")));
+		if (null != jedisConfigBean.getPassword() && !"".equals(jedisConfigBean.getPassword())) {
+            jedis.auth(jedisConfigBean.getPassword());
+        }
+		jedis.select(jedisConfigBean.getDefaultDb());
 		return jedis;
 	}
 	/**
@@ -821,13 +797,64 @@ public class JedisHelperImpl implements JedisCacheHelper {
 		Jedis jedis = getJedis();
 		Set<byte[]> bsset = jedis.sinter(keys);
 		closeIfNoCurrentJedis(jedis);
+		if (null == bsset)
+			return ret;
 		for(Iterator<byte[]> iterator = bsset.iterator(); iterator.hasNext();) {
 			T o = SerializeUtil.deserialize(iterator.next(), type);
 			ret.add(o);
 		}
 		return ret;
 	}
-	
+
+	public <T> Set<T> getDiffObjectSet(Class<T> type, byte[]... keys) {
+		if(null == keys || keys.length == 0)
+			return null;
+		Set<T> ret = new HashSet<T>();
+		Jedis jedis = getJedis();
+		Set<byte[]> bsset = jedis.sdiff(keys);
+		closeIfNoCurrentJedis(jedis);
+		if (null == bsset)
+			return ret;
+		for(Iterator<byte[]> iterator = bsset.iterator(); iterator.hasNext();) {
+			T o = SerializeUtil.deserialize(iterator.next(), type);
+			ret.add(o);
+		}
+		return ret;
+	}
+
+	public <T> Set<T> getUnionObjectSet(Class<T> type, byte[]... keys) {
+		if(null == keys || keys.length == 0)
+			return null;
+		Set<T> ret = new HashSet<T>();
+		Jedis jedis = getJedis();
+		Set<byte[]> bsset = jedis.sunion(keys);
+		closeIfNoCurrentJedis(jedis);
+		if (null == bsset)
+			return ret;
+		for(Iterator<byte[]> iterator = bsset.iterator(); iterator.hasNext();) {
+			T o = SerializeUtil.deserialize(iterator.next(), type);
+			ret.add(o);
+		}
+		return ret;
+	}
+
+	public int moveObjectSetMember(byte[] source, byte[] dest, Object member) {
+		if(null == source || source.length == 0 || null == dest || dest.length == 0 || null == member)
+			return 0;
+		Jedis jedis = getJedis();
+		long count = jedis.smove(source, dest, SerializeUtil.serialize(member));
+		closeIfNoCurrentJedis(jedis);
+		return Integer.valueOf("" + count);
+	}
+
+	public boolean isObjectSetMember(byte[] key, Object member) {
+		if(null == key || key.length == 0 || null == member)
+			return false;
+		Jedis jedis = getJedis();
+		boolean isMember = jedis.sismember(key, SerializeUtil.serialize(member));
+		closeIfNoCurrentJedis(jedis);
+		return isMember;
+	}
 	
 	
 	
@@ -892,6 +919,52 @@ public class JedisHelperImpl implements JedisCacheHelper {
 		closeIfNoCurrentJedis(jedis);
 		return bsset;
 	}
+
+
+	@Override
+	public Set<String> getDiffStringSet(String... keys) {
+		if(null == keys || keys.length == 0)
+			return null;
+		Jedis jedis = getJedis();
+		Set<String> bsset = jedis.sdiff(keys);
+		closeIfNoCurrentJedis(jedis);
+		return bsset;
+	}
+
+	@Override
+	public Set<String> getUnionObjectSet(String... keys) {
+		if(null == keys || keys.length == 0)
+			return null;
+		Jedis jedis = getJedis();
+		Set<String> bsset = jedis.sunion(keys);
+		closeIfNoCurrentJedis(jedis);
+		return bsset;
+	}
+
+
+	@Override
+	public int moveStringSetMember(String source, String dest, String member) {
+		if (null == source || null == dest || null == member)
+			return 0;
+		Jedis jedis = getJedis();
+		long count = jedis.smove(source, dest, member);
+		closeIfNoCurrentJedis(jedis);
+		return Integer.valueOf("" + count);
+	}
+
+
+	@Override
+	public boolean isStringSetMember(String key, String member) {
+		if (null == key || null == member)
+			return false;
+		Jedis jedis = getJedis();
+		boolean isMember = jedis.sismember(key, member);
+		closeIfNoCurrentJedis(jedis);
+		return isMember;
+	}
+
+
+
 
 	@Override
 	public boolean existsKey(String key) {
