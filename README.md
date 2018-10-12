@@ -13,6 +13,6 @@ redis:
   maxIdle: 10
   minIdle: 2
   maxWait: 5000
-  testOnBorrow: true
-  testOnReturn: false
+  testOnBorrow: false # must be false, this is a bug of jedis
+  testOnReturn: false # must be false, this is a bug of jedis
 ```
