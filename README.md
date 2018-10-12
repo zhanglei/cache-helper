@@ -8,11 +8,11 @@ redis:
   port: 6379
   password: ''
   default.db: 0
- maxTotal: 50
- maxActive: 1024
- maxIdle: 10
- minIdle: 2
- maxWait: 5000
- testOnBorrow: true
- testOnReturn: false
+  maxTotal: 50
+  maxActive: 1024
+  maxIdle: 10
+  minIdle: 2
+  maxWait: 5000
+  testOnBorrow: true
+  testOnReturn: false
 ```
