@@ -1,4 +1,4 @@
-package com.hty.util.cachehelper;
+package com.foxless.util.cache;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -10,8 +10,8 @@ import com.dyuproject.protostuff.runtime.DefaultIdStrategy;
 import com.dyuproject.protostuff.runtime.Delegate;
 import com.dyuproject.protostuff.runtime.RuntimeEnv;
 import com.dyuproject.protostuff.runtime.RuntimeSchema;
-import com.hty.util.cachehelper.bean.DataContainer;
-import com.hty.util.cachehelper.bean.TimestampDelegate;
+import com.foxless.util.cache.bean.DataContainer;
+import com.foxless.util.cache.bean.TimestampDelegate;
 
 
 @SuppressWarnings("unchecked")

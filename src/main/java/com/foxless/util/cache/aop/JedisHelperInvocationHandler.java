@@ -1,11 +1,11 @@
 
-package com.hty.util.cachehelper.aop;
+package com.foxless.util.cache.aop;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import com.hty.util.cachehelper.bean.JedisConfigBean;
-import com.hty.util.cachehelper.cacher.impl.JedisHelperImpl;
+import com.foxless.util.cache.bean.JedisConfigBean;
+import com.foxless.util.cache.cacher.impl.JedisHelperImpl;
 
 /**
  * 用切面来执行JedisHelper的方法，如果方法执行过程中抛出异常，则回滚事务。

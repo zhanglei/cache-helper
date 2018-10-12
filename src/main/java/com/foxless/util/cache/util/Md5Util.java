@@ -1,4 +1,4 @@
-package com.hty.util.cachehelper.util;
+package com.foxless.util.cache.util;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

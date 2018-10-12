@@ -1,4 +1,4 @@
-package com.hty.util.cachehelper.bean;
+package com.foxless.util.cache.bean;
 
 public interface JedisConfigBean {
     //#最大连接数

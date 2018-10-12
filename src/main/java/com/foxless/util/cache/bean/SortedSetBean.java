@@ -1,4 +1,4 @@
-package com.hty.util.cachehelper.bean;
+package com.foxless.util.cache.bean;
 
 /**
  * 模仿redis的SortedSet创建的有序集合

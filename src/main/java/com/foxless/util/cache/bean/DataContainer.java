@@ -1,4 +1,4 @@
-package com.hty.util.cachehelper.bean;
+package com.foxless.util.cache.bean;
 
 /**
  * 序列化数据容器

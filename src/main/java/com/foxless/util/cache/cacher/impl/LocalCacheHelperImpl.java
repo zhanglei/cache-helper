@@ -1,4 +1,4 @@
-package com.hty.util.cachehelper.cacher.impl;
+package com.foxless.util.cache.cacher.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,10 +15,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
-import com.hty.util.cachehelper.SerializeUtil;
-import com.hty.util.cachehelper.bean.SortedSetBean;
-import com.hty.util.cachehelper.cacher.LocalCacheHelper;
-import com.hty.util.cachehelper.util.Md5Util;
+import com.foxless.util.cache.SerializeUtil;
+import com.foxless.util.cache.cacher.LocalCacheHelper;
+import com.foxless.util.cache.util.Md5Util;
+import com.foxless.util.cache.bean.SortedSetBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

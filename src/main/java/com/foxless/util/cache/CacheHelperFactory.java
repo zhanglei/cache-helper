@@ -2,15 +2,15 @@
  * @author Hetianyi
  * @date 2018/5/5
  */
-package com.hty.util.cachehelper;
+package com.foxless.util.cache;
 
 import java.lang.reflect.Proxy;
 
-import com.hty.util.cachehelper.aop.JedisHelperInvocationHandler;
-import com.hty.util.cachehelper.bean.JedisConfigBean;
-import com.hty.util.cachehelper.cacher.JedisCacheHelper;
-import com.hty.util.cachehelper.cacher.LocalCacheHelper;
-import com.hty.util.cachehelper.cacher.impl.LocalCacheHelperImpl;
+import com.foxless.util.cache.cacher.LocalCacheHelper;
+import com.foxless.util.cache.aop.JedisHelperInvocationHandler;
+import com.foxless.util.cache.bean.JedisConfigBean;
+import com.foxless.util.cache.cacher.JedisCacheHelper;
+import com.foxless.util.cache.cacher.impl.LocalCacheHelperImpl;
 
 
 public class CacheHelperFactory {

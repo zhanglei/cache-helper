@@ -1,4 +1,4 @@
-package com.hty.util.cachehelper.bean;
+package com.foxless.util.cache.bean;
 
 import java.io.IOException;
 import java.sql.Timestamp;
