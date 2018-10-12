@@ -409,7 +409,23 @@ public class JedisHelperImpl implements JedisCacheHelper {
 		closeIfNoCurrentJedis(jedis);
 		return ret;
 	}
-	
+
+	@Override
+	public Map<String, String> hmget(String key, String... field) {
+		assertKey(key);
+		if (null == field || field.length == 0) {
+			return null;
+		}
+		Jedis jedis = getJedis();
+		List<String> list = jedis.hmget(key, field);
+		closeIfNoCurrentJedis(jedis);
+		Map<String, String> ret = new HashMap<String, String>(field.length);
+		for (int i = 0; i < field.length; i++) {
+			ret.put(field[i], list.get(i));
+		}
+		return ret;
+	}
+
 	@Override
 	public void hset(String key, String field, String value) {
 		assertKey(key);
@@ -522,6 +538,27 @@ public class JedisHelperImpl implements JedisCacheHelper {
 			}
 		}
 		return list;
+	}
+
+	@Override
+	public <T, K> Map<K, T> getMultiMapValues(String mapKey, Class<T> type, K... keys) {
+		assertKey(mapKey);
+		if (null == keys) {
+			return null;
+		}
+		byte[][] fieldBytes = new byte[keys.length][];
+		for (int i = 0; i < keys.length; i++) {
+			fieldBytes[i] = SerializeUtil.serialize(keys[i]);
+			assertKey(fieldBytes[i]);
+		}
+		Jedis jedis = getJedis();
+		List<byte[]> list = jedis.hmget(mapKey.getBytes(), fieldBytes);
+		closeIfNoCurrentJedis(jedis);
+		Map<K, T> ret = new HashMap<K, T>(keys.length);
+		for (int i = 0; i < keys.length; i++) {
+			ret.put(keys[i], SerializeUtil.deserialize(list.get(i), type));
+		}
+		return ret;
 	}
 
 	@Override

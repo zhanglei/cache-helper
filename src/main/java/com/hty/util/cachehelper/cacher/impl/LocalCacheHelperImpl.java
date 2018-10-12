@@ -157,6 +157,21 @@ public class LocalCacheHelperImpl implements LocalCacheHelper {
     }
 
     @Override
+    public Map<String, String> hmget(String key, String... field) {
+        if (isKeyExpired(key))
+            return null;
+        Map<Object, Object> itemMap = hashData.get(key);
+        if (null != itemMap && null != field) {
+            Map<String, String> ret = new HashMap<String, String>(field.length);
+            for (String f : field) {
+                ret.put(f, itemMap.get(field) == null ? null : itemMap.get(field).toString());
+            }
+            return ret;
+        }
+        return null;
+    }
+
+    @Override
     public void hset(String key, String field, String value) {
         assertKey(key);
         assertKey(field);
@@ -248,6 +263,23 @@ public class LocalCacheHelperImpl implements LocalCacheHelper {
             }
         }
         return list;
+    }
+
+    @Override
+    public <T, K> Map<K, T> getMultiMapValues(String mapKey, Class<T> type, K... keys) {
+        if (isKeyExpired(mapKey))
+            return null;
+        Map<Object, Object> map = this.hashData.get(mapKey);
+        if (null != map && null != keys) {
+            Map<K, T> ret = new HashMap<K, T>(keys.length);
+            for (K o : keys) {
+                byte[] fieldBytes = SerializeUtil.serialize(o);
+                String fieldMd5 = Md5Util.getMd5(fieldBytes);
+                ret.put(o, (T) map.get(fieldMd5));
+            }
+            return ret;
+        }
+        return null;
     }
 
     @Override

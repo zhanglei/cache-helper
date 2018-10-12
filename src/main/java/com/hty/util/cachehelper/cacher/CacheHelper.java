@@ -37,6 +37,10 @@ public interface CacheHelper {
 	 */
 	String hget(String key, String field);
 	/**
+	 * 从Hash结构中获取缓存数据
+	 */
+	Map<String, String> hmget(String key, String... field);
+	/**
 	 * 设置Hash结构的缓存数据
 	 * @param key Hash结构的键
 	 * @param field Hash结构的字段
@@ -71,7 +75,6 @@ public interface CacheHelper {
 	 * 将Map对象拆分缓存，使用第三方的序列化工具将Map序列化为字节数组。<br>
 	 * @param key
 	 * @param map
-	 * @param split 标志map是否拆分保存
 	 */
 	void setMap(String key, Map<?, ?> map);
 	
@@ -94,6 +97,10 @@ public interface CacheHelper {
 	 * 返回哈希表 key 中所有域的值
 	 */
 	<T> List<T> getMapValues(String mapKey, Class<T> type);
+	/**
+	 * 返回哈希表 key 中给定key的值
+	 */
+	<T, K> Map<K, T> getMultiMapValues(String mapKey, Class<T> type, K... keys);
 	
 	
 	//---Hash(Map)↑---$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
